@@ -3,8 +3,6 @@ module github.com/christiansoetanto/go-benchmark-testing
 // +heroku goVersion go1.20
 go 1.21
 
-toolchain go1.21.5
-
 require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/heroku/x v0.1.0
