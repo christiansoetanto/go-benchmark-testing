@@ -1,19 +1,33 @@
 package main
 
 import (
+	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"sort"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/heroku/x/hmetrics/onload"
 )
 
-func setupRouter() *gin.Engine {
-	// Disable Console Color
-	// gin.DisableConsoleColor()
-	r := gin.Default()
+func main() {
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		log.Fatal("$PORT must be set")
+	}
+
+	r := gin.New()
+	r.Use(gin.Logger())
+	r.LoadHTMLGlob("templates/*.tmpl.html")
+	r.Static("/static", "static")
+
+	r.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.tmpl.html", nil)
+	})
 
 	// Ping test
 	r.GET("/ping", func(c *gin.Context) {
@@ -39,9 +53,9 @@ func setupRouter() *gin.Engine {
 		n, _ := strconv.ParseInt(c.Query("n"), 10, 64)
 		c.JSON(http.StatusOK, gin.H{"result": doBinarySearch(int(n))})
 	})
-
-	return r
+	r.Run(":" + port)
 }
+
 func doFibo(n int, memo bool) int {
 	if memo {
 		memo := make(map[int]int)
@@ -113,9 +127,4 @@ func binarySearch(arr []int, l int, r int, x int) int {
 		return binarySearch(arr, mid+1, r, x)
 	}
 	return -1
-}
-func main() {
-	r := setupRouter()
-	// Listen and Server in 0.0.0.0:8080
-	r.Run(":8080")
 }
